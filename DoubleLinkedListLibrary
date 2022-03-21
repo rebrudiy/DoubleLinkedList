@@ -1,0 +1,454 @@
+
+#ifndef gdfgdfgdsgdfgdsfgsdgsdfgdfgdfgdfgdfsgdsfgsdfgdsfgd
+#define gdfgdfgdsgdfgdsfgsdgsdfgdfgdfgdfgdfsgdsfgsdfgdsfgd
+#include <iostream>
+void error_record(){
+    std::cerr << "Sorry,you gone off the List";
+    exit(1);
+}
+template<class T>
+class DoubleLinkedList{
+    //тривиальный класс двуноправленной вершины
+    struct Node{
+        T val;
+        Node *next;
+        Node *prev;
+        Node(){
+            next = nullptr;
+            prev = nullptr;
+        }
+        Node(T x){
+            next = nullptr;
+            prev = nullptr;
+            val = x;
+        }
+    };
+public:
+    struct Iterator{
+        Node *cur;
+    public:
+        //делаем совместимой stl
+        using iterator_category = std::random_access_iterator_tag;
+        using difference_type   = size_t;
+        using value_type        = T;
+        using pointer           = T*;
+        using reference         = T&;
+        //перезагружаем операторы
+        Iterator& operator ++(){
+            if(!cur->next){error_record();}
+            cur = cur->next;
+            return *this;
+        }
+        Iterator operator ++(int){
+            if(!cur->next){error_record();}
+            cur = cur->next;
+            return *this;
+        }
+        Iterator& operator --(){
+            if(!cur->prev){error_record();}
+            cur = cur->prev;
+            return *this;
+        }
+        Iterator operator --(int){
+            if(!cur->prev){error_record();}
+            cur = cur->prev;
+            return *this;
+        }
+        Iterator operator +(int n){
+            Iterator ans = *this;
+            for(int i = 0;i < n;i ++){
+                ans ++;
+            }
+            return ans;
+        }
+
+        Iterator& operator =(const Iterator &it) {
+            if(this == &it){return *this;}
+            this->cur = it.cur;
+            this->cur->val = it.cur->val;
+            this->cur->next = it.cur->next;
+            this->cur->prev = it.cur->prev;
+            return *this;
+        }
+        Iterator operator -(int n){
+            Iterator ans = *this;
+            for(int i = 0;i < n;i ++){
+                ans --;
+            }
+            return ans;
+        }
+        Iterator &operator +=(int n){
+            for(int i = 0;i < n;i ++){
+                (*this) ++;
+            }
+            return *this;
+        }
+        Iterator &operator -=(int n){
+            for(int i = 0;i < n;i ++){
+                (*this) --;
+            }
+            return *this;
+        }
+        Node* operator->(){
+            return cur;
+        }
+        T& operator *(){
+            return cur->val;
+        }
+        bool operator >=(const Iterator &other) const{
+            return this->cur >= other.cur;
+        }
+        bool operator <(const Iterator &other) const{
+            return this->cur < other.cur;
+        }
+        bool operator <=(const Iterator &other) const{
+            return this->cur <= other.cur;
+        }
+        bool operator !=(const Iterator &other) const{
+            return other.cur != this->cur;
+        }
+        bool operator ==(const Iterator &other) const{
+            return other.cur == this->cur;
+        }
+        size_t operator-(const Iterator &other){
+            size_t count = 0;
+            Iterator it = other;
+            while (it.cur != this->cur){
+                count ++;
+                it.cur = it.cur->next;
+            }
+            return count;
+        }
+        bool operator>(const Iterator &other){
+            return *(this) - other > 0;
+        }
+        //конструкторы
+        Iterator(T x){
+            cur = new Node(x);
+        }
+        Iterator(){
+            cur = new Node();
+        }
+        //функция swap
+        void swap(Iterator &other){
+            Node *it = other.cur;
+            other.cur = this->cur;
+            this->cur = it;
+        }
+    };
+    struct Reverse_Iterator{
+        //класс реверс итератор работает так как должен работат реверс итератор(все операци работают наоборот)
+        Iterator rit;
+        using iterator_category = std::random_access_iterator_tag;
+        using difference_type   = size_t;
+        using value_type        = T;
+        using pointer           = T*;
+        using reference         = T&;
+        Reverse_Iterator& operator --(){
+            if(!rit.cur->next){error_record();}
+            rit.cur = rit.cur->next;
+            return *this;
+        }
+        Reverse_Iterator operator --(int){
+            if(!rit.cur->next){error_record();}
+            rit.cur = rit.cur->next;
+            return *this;
+        }
+        Reverse_Iterator& operator ++(){
+            if(!rit.cur->prev){error_record();}
+            rit.cur = rit.cur->prev;
+            return *this;
+        }
+        Reverse_Iterator operator ++(int){
+            if(!rit.cur->prev){error_record();}
+            rit.cur = rit.cur->prev;
+            return *this;
+        }
+        Reverse_Iterator operator +(int n){
+            Reverse_Iterator ans = *this;
+            for(int i = 0;i < n;i ++){
+                ans ++;
+            }
+            return ans;
+        }
+
+        Reverse_Iterator& operator =(const Reverse_Iterator &it) {
+            if(this == &it){return *this;}
+            this->rit.cur = it.rit.cur;
+            this->rit.cur->val = it.rit.cur->val;
+            this->rit.cur->next = it.rit.cur->next;
+            this->rit.cur->prev = it.rit.cur->prev;
+            return *this;
+        }
+        Reverse_Iterator operator -(int n){
+            Reverse_Iterator ans = *this;
+            for(int i = 0;i < n;i ++){
+                ans --;
+            }
+            return ans;
+        }
+        Reverse_Iterator &operator +=(int n){
+            for(int i = 0;i < n;i ++){
+                (*this) ++;
+            }
+            return *this;
+        }
+        Reverse_Iterator &operator -=(int n){
+            for(int i = 0;i < n;i ++){
+                (*this) --;
+            }
+            return *this;
+        }
+        Node* operator->(){
+            return rit.cur;
+        }
+        T& operator *(){
+            return rit.cur->prev->val;
+        }
+        bool operator >=(const Reverse_Iterator &other) const{
+            return this->rit.cur >= other.rit.cur;
+        }
+        bool operator <(const Reverse_Iterator &other) const{
+            return this->rit.cur < other.rit.cur;
+        }
+        bool operator <=(const Reverse_Iterator &other) const{
+            return this->rit.cur <= other.rit.cur;
+        }
+        bool operator !=(const Reverse_Iterator &other) const{
+            return other.rit.cur != this->rit.cur;
+        }
+        bool operator ==(const Reverse_Iterator &other) const{
+            return other.rit.cur == this->rit.cur;
+        }
+        size_t operator-(const Reverse_Iterator &other){
+            size_t count = 0;
+            Reverse_Iterator it = other;
+            while (it.rit.cur != this->rit.cur){
+                count ++;
+                it ++;
+            }
+            return count;
+        }
+        bool operator>(const Iterator &other){
+            return *(this) - other > 0;
+        }
+        Reverse_Iterator(Iterator x){
+            rit = x;
+        }
+        Reverse_Iterator(){
+            rit.cur = new Node();
+        }
+        void swap(Reverse_Iterator &other){
+            Node *it = other.rit.cur;
+            other.rit.cur = this->rit.cur;
+            this->rit.cur = it;
+        }
+    };
+
+private:
+    //поля класса DoubleLinkedList
+    Iterator first;
+    Iterator last;
+    Reverse_Iterator rfirst = Reverse_Iterator(last);
+    Reverse_Iterator rlast = Reverse_Iterator(first);
+    size_t len = 0;
+public:
+    //добавление
+    void insert(Iterator it,const T &val,const size_t &count = 1){
+        for(size_t i = 0;i < count;i ++ ,it ++){
+            len ++;
+            if(len == 1){
+                first.cur->val = val;
+                first.cur->next = last.cur;
+                last.cur->prev = first.cur;
+                if(!it.cur->next){
+                    it --;
+                }
+                continue;
+            }
+            Iterator p(val);
+            if(!it.cur->next){
+                it --;
+                last.cur->prev = p.cur;
+                p.cur->next = last.cur;
+                it.cur->next = p.cur;
+                p.cur->prev = it.cur;
+                continue;
+            }
+            if(!it.cur->prev){
+                p.cur->next = first.cur;
+                first.cur->prev = p.cur;
+                first = p;
+                rlast = Reverse_Iterator(p);
+                it --;
+                continue;
+            }
+            it.cur->next->prev = p.cur;
+            p.cur->next = it.cur->next;
+            it.cur->next = p.cur;
+            p.cur->prev = it.cur;
+            std::swap(it.cur->val,p.cur->val);
+        }
+    }
+    //добавление для реверс итераторов
+    void insert(Reverse_Iterator it,const T &val,const size_t &count = 1){
+        if(it.rit == begin() || empty()){
+            insert(begin(),val,count);
+        }else{
+            insert(it.rit - 1,val,count);
+        }
+    }
+    //удаление
+    void erase(Iterator it_begin,Iterator it_end){
+        if(empty()){return;}
+        if(it_end > it_begin) {
+            for (auto it = it_begin; it != it_end;) {
+                if (empty()) {
+                    std::cerr << "Sorry you can't erase form empty list";
+                    exit(1);
+                }
+                len--;
+                if (empty()) {
+                    first.cur->next = nullptr;
+                    first.cur->prev = nullptr;
+                    last.cur->next = nullptr;
+                    last.cur->prev = nullptr;
+                    return;
+                }
+                if(!it.cur->prev){
+                    it ++;
+                    delete it.cur->prev;
+                    it.cur->prev = nullptr;
+                    first = it;
+                    rlast = Reverse_Iterator(it);
+                    continue;
+                }
+                Iterator x = it;
+                it.cur->prev->next = it.cur->next;
+                it.cur->next->prev = it.cur->prev;
+                it ++;
+                delete x.cur;
+            }
+        }else{
+            std::cerr << "Uncorrect data";
+            exit(1);
+        }
+    }
+    void erase(Iterator it){
+        erase(it,it + 1);
+    }
+    //удаление для реверс итераторов
+    void erase(Reverse_Iterator it_begin,Reverse_Iterator it_end){
+        erase(it_end.rit,it_begin.rit);
+    }
+    void erase(Reverse_Iterator it){
+        erase(it,it + 1);
+    }
+    T& front(){
+        if(empty()){
+            error_record();
+        }
+        return this->begin().cur->val;
+    }
+    T& back(){
+        if(empty()){
+            error_record();
+        }
+        return this->end().cur->prev->val;
+    }
+    void push_back(T x){
+        this->insert(this->end(),x);
+    }
+    void push_front(T x){
+        this->insert(this->begin(),x);
+    }
+    void pop_front(){
+        erase(begin());
+    }
+    void pop_back(){
+        erase(end() - 1);
+    }
+    void clear(){
+        erase(begin(),end());
+    }
+    void resize(size_t const &s){
+        if(size() > s){
+            erase(end() - (size() - s),end());
+            return;
+        }
+        while (size() < s){
+            push_back(0);
+        }
+    }
+    //заполняет из массива
+    void assign(T *a,size_t n){
+        clear();
+        for(int i = 0;i < n;i ++){
+            push_back(*(a + i));
+        }
+    }
+    // n раз добавляет val
+    void assign(T val,size_t n){
+        clear();
+        for(int i = 0;i < n;i ++){
+            push_back(val);
+        }
+    }
+    //заполняет от first до last
+    void assign(const T &first,const T &last){
+        for(int i = first;i < last;i ++){
+            push_back(i);
+        }
+    }
+    size_t size(){
+        return len;
+    }
+    bool empty(){
+        return len == 0;
+    }
+    Reverse_Iterator rbegin(){
+        if(empty()){
+            return rlast;
+        }
+        return rfirst;
+    }
+    Reverse_Iterator rend(){
+        return  rlast;
+    }
+    Iterator begin(){
+        if(empty()){
+            return last;
+        }
+        return first;
+    }
+    Iterator end(){
+        return last;
+    }
+    //перезагружаем []
+    T& operator[](int n){
+        if(first + n == last){
+            error_record();
+        }
+        return (first + n).cur->val;
+    }
+    void reverse(){
+        for(int i = 0;i < size() / 2;i ++){
+            std::swap((*this)[i],(*this)[size() - i - 1]);
+        }
+    }
+    DoubleLinkedList() = default;
+    DoubleLinkedList(size_t n){
+        assign(0,n);
+    }
+    ~DoubleLinkedList(){
+        clear();
+        delete first.cur;
+        delete last.cur;
+    }
+    DoubleLinkedList(const DoubleLinkedList<T> &other){
+        for(int i = 0;i < other.size();i ++){
+            this->push_back(other[i]);
+        }
+    }
+};
+#endif
